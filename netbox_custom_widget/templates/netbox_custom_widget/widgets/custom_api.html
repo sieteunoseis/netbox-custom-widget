@@ -1,0 +1,24 @@
+{% load i18n %}
+
+{% if error %}
+  <div class="text-center py-2">
+    <span class="text-danger">
+      <i class="mdi mdi-alert"></i> {{ error }}
+    </span>
+  </div>
+{% elif endpoint %}
+  {% if endpoint.refresh_interval > 0 %}
+  <div hx-get="{% url 'plugins:netbox_custom_widget:widget_refresh' endpoint.pk %}"
+       hx-trigger="every {{ endpoint.refresh_interval }}s"
+       hx-swap="innerHTML">
+  {% else %}
+  <div>
+  {% endif %}
+    {% include "netbox_custom_widget/widgets/custom_api_content.html" %}
+  </div>
+{% else %}
+  <p class="text-center text-muted py-2">
+    <i class="mdi mdi-information-outline"></i>
+    {% trans "No endpoint configured." %}
+  </p>
+{% endif %}

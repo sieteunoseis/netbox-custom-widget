@@ -1,0 +1,114 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="{% url 'plugins:netbox_custom_widget:customapiendpoint_list' %}">API Endpoints</a></li>
+<li class="breadcrumb-item">{{ object }}</li>
+{% endblock breadcrumbs %}
+
+{% block content %}
+<div class="row">
+    <div class="col col-md-6">
+        <div class="card">
+            <h5 class="card-header">API Endpoint</h5>
+            <table class="table table-hover attr-table">
+                <tr>
+                    <th scope="row">Name</th>
+                    <td>{{ object.name }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">URL</th>
+                    <td><code style="word-break: break-all;">{{ object.url }}</code></td>
+                </tr>
+                <tr>
+                    <th scope="row">Method</th>
+                    <td><span class="badge text-bg-info">{{ object.http_method }}</span></td>
+                </tr>
+                <tr>
+                    <th scope="row">Display Mode</th>
+                    <td>{{ object.get_display_mode_display }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Refresh Interval</th>
+                    <td>{{ object.refresh_interval }}s</td>
+                </tr>
+                <tr>
+                    <th scope="row">SSL Verification</th>
+                    <td>{% if object.verify_ssl %}{% checkmark True %}{% else %}{% checkmark False %}{% endif %}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Timeout</th>
+                    <td>{{ object.timeout }}s</td>
+                </tr>
+                <tr>
+                    <th scope="row">Description</th>
+                    <td>{{ object.description|placeholder }}</td>
+                </tr>
+            </table>
+        </div>
+
+        {% if object.headers %}
+        <div class="card">
+            <h5 class="card-header">Headers</h5>
+            <div class="card-body">
+                <pre class="mb-0">{{ object.headers|json }}</pre>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if object.mappings %}
+        <div class="card">
+            <h5 class="card-header">Field Mappings</h5>
+            <div class="card-body">
+                <pre class="mb-0">{{ object.mappings|json }}</pre>
+            </div>
+        </div>
+        {% endif %}
+
+        {% include 'inc/panels/custom_fields.html' %}
+        {% include 'inc/panels/tags.html' %}
+        {% include 'inc/panels/comments.html' %}
+    </div>
+
+    <div class="col col-md-6">
+        <div class="card">
+            <h5 class="card-header">Live Preview</h5>
+            <div class="card-body">
+                {% if api_result.error %}
+                    <div class="text-center py-2">
+                        <span class="text-danger">
+                            <i class="mdi mdi-alert"></i> {{ api_result.error }}
+                        </span>
+                    </div>
+                {% elif mapped_data %}
+                    {% for item in mapped_data %}
+                    <div class="d-flex justify-content-between align-items-center py-1 {% if not forloop.last %}border-bottom{% endif %}">
+                        <span>
+                            {% if item.label %}
+                                <strong>{{ item.label }}:</strong>
+                            {% endif %}
+                            {{ item.value }}
+                            {% if item.suffix %}<small class="text-muted">{{ item.suffix }}</small>{% endif %}
+                        </span>
+                        {% if item.additional_value %}
+                            <span class="fw-bold {{ item.color_class }}">{{ item.additional_value }}</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center mb-0">No data returned</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {% plugin_right_page object %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col col-md-12">
+        {% plugin_full_width_page object %}
+    </div>
+</div>
+{% endblock content %}
