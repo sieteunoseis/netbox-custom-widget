@@ -53,21 +53,55 @@ def get_adaptive_color(value):
 
     val = str(value).lower().strip()
 
-    # Active/Up states -> blue (primary)
+    # Active/Up states -> blue
     if any(kw in val for kw in ("active", "insvc", "in service")):
-        return "badge text-bg-primary"
+        return "badge text-bg-blue"
 
-    # Up/OK/Running -> green (success)
+    # Up/OK/Running -> green
     if any(kw in val for kw in ("up", "ok", "running", "online", "healthy", "on duty")):
-        return "badge text-bg-success"
+        return "badge text-bg-green"
 
-    # Down/Error states -> red (danger)
+    # Down/Error states -> red
     if any(kw in val for kw in ("down", "isolated", "error", "failed", "offline", "critical")):
-        return "badge text-bg-danger"
+        return "badge text-bg-red"
 
-    # Warning/Idle states -> orange (warning)
+    # Warning/Idle states -> orange
     if any(kw in val for kw in ("standby", "idle", "not active", "configured", "warning", "degraded", "paused")):
-        return "badge text-bg-warning"
+        return "badge text-bg-orange"
+
+    return ""
+
+
+def get_threshold_color(value, thresholds):
+    """
+    Determine color based on numeric thresholds.
+
+    Thresholds are evaluated top-to-bottom. Each entry can have:
+    - "lt": value less than this number
+    - "gt": value greater than this number
+    - "color": Tabler color name (red, orange, green, blue, cyan)
+
+    The last entry without lt/gt acts as the default.
+
+    Example:
+        [{"lt": 5, "color": "red"}, {"lt": 10, "color": "orange"}, {"color": "green"}]
+        -> value < 5: red, value < 10: orange, else: green
+    """
+    try:
+        num = float(value)
+    except (TypeError, ValueError):
+        return ""
+
+    for rule in thresholds:
+        color = rule.get("color", "")
+        badge = f"badge text-bg-{color}" if color else ""
+
+        if "lt" in rule and num < rule["lt"]:
+            return badge
+        elif "gt" in rule and num > rule["gt"]:
+            return badge
+        elif "lt" not in rule and "gt" not in rule:
+            return badge
 
     return ""
 
@@ -75,13 +109,13 @@ def get_adaptive_color(value):
 def get_static_color(color_name):
     """Map color name to Bootstrap class."""
     color_map = {
-        "success": "badge text-bg-success",
-        "warning": "badge text-bg-warning",
-        "danger": "badge text-bg-danger",
-        "info": "badge text-bg-info",
-        "primary": "badge text-bg-primary",
-        "secondary": "badge text-bg-secondary",
-        "theme": "badge text-bg-primary",
+        "success": "badge text-bg-green",
+        "warning": "badge text-bg-orange",
+        "danger": "badge text-bg-red",
+        "info": "badge text-bg-cyan",
+        "primary": "badge text-bg-blue",
+        "secondary": "badge text-bg-muted",
+        "theme": "badge text-bg-blue",
     }
     return color_map.get(color_name, "")
 
@@ -158,6 +192,10 @@ def process_mappings(data, mappings):
             # Apply adaptive coloring to additional_value if present, else value
             color_target = additional_value if additional_value is not None else value
             color_class = get_adaptive_color(color_target)
+        elif color == "threshold":
+            thresholds = mapping.get("thresholds", [])
+            color_target = additional_value if additional_value is not None else value
+            color_class = get_threshold_color(color_target, thresholds)
         elif color:
             color_class = get_static_color(color)
         else:

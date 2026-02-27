@@ -52,7 +52,7 @@ class CustomAPIEndpoint(NetBoxModel):
         help_text="Display name for this endpoint",
     )
     url = models.CharField(
-        max_length=500,
+        max_length=2000,
         help_text="API endpoint URL",
     )
     http_method = models.CharField(

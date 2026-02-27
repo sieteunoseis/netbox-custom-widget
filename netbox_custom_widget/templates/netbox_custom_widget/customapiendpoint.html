@@ -23,7 +23,7 @@
                 </tr>
                 <tr>
                     <th scope="row">Method</th>
-                    <td><span class="badge text-bg-info">{{ object.http_method }}</span></td>
+                    <td><span class="badge text-bg-cyan">{{ object.http_method }}</span></td>
                 </tr>
                 <tr>
                     <th scope="row">Display Mode</th>
@@ -85,30 +85,9 @@
         <div class="card">
             <h5 class="card-header">Live Preview</h5>
             <div class="card-body">
-                {% if api_result.error %}
-                    <div class="text-center py-2">
-                        <span class="text-danger">
-                            <i class="mdi mdi-alert"></i> {{ api_result.error }}
-                        </span>
-                    </div>
-                {% elif mapped_data %}
-                    {% for item in mapped_data %}
-                    <div class="d-flex justify-content-between align-items-center py-1 {% if not forloop.last %}border-bottom{% endif %}">
-                        <span>
-                            {% if item.label %}
-                                <strong>{{ item.label }}:</strong>
-                            {% endif %}
-                            {{ item.value }}
-                            {% if item.suffix %}<small class="text-muted">{{ item.suffix }}</small>{% endif %}
-                        </span>
-                        {% if item.additional_value %}
-                            <span class="fw-bold {{ item.color_class }}">{{ item.additional_value }}</span>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="text-muted text-center mb-0">No data returned</p>
-                {% endif %}
+                {% with endpoint=object error=api_result.error %}
+                    {% include "netbox_custom_widget/widgets/custom_api_content.html" %}
+                {% endwith %}
             </div>
         </div>
 

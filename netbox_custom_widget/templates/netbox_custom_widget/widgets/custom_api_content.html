@@ -25,18 +25,26 @@
     {% endfor %}
 
   {% elif endpoint.display_mode == "grid" %}
-    <div class="d-flex flex-wrap gap-2 px-2 py-1">
+    <div class="row text-center py-1 px-2">
       {% for item in mapped_data %}
-        <div class="flex-fill text-center p-2 rounded {% if item.color_class %}{{ item.color_class }}{% else %}border{% endif %}" style="min-width: 100px;">
-          <div class="fw-bold">
-            {% if item.label %}{{ item.label }}{% else %}{{ item.value }}{% endif %}
+        <div class="col">
+          <div class="py-2">
+            {% if item.color_class %}
+              <span class="{{ item.color_class }} fs-4 px-3 py-2">
+                {{ item.value }}
+                {% if item.suffix %}<small class="ms-1">{{ item.suffix }}</small>{% endif %}
+              </span>
+            {% else %}
+              <span class="fw-bold fs-4">
+                {{ item.value }}
+                {% if item.suffix %}<small class="text-muted ms-1">{{ item.suffix }}</small>{% endif %}
+              </span>
+            {% endif %}
+            {% if item.additional_value %}
+              <div class="mt-1 fw-bold {{ item.color_class }}">{{ item.additional_value }}</div>
+            {% endif %}
+            {% if item.label %}<div class="mt-2 fw-bold">{{ item.label }}</div>{% endif %}
           </div>
-          {% if item.additional_value %}
-            <div class="small">{{ item.additional_value }}</div>
-          {% elif item.label %}
-            <div class="small">{{ item.value }}</div>
-          {% endif %}
-          {% if item.suffix %}<div class="small opacity-75">{{ item.suffix }}</div>{% endif %}
         </div>
       {% endfor %}
     </div>
@@ -73,20 +81,28 @@
     {# block mode (default fallback) #}
     {% for item in mapped_data %}
       <div class="px-2 py-1 {% if not forloop.last %}border-bottom{% endif %}">
-        {% if item.label %}
+        {% if item.color_class %}
+          <div class="text-center py-2">
+            <span class="{{ item.color_class }} fs-4 px-3 py-2">
+              {{ item.value }}
+              {% if item.suffix %}<small class="ms-1">{{ item.suffix }}</small>{% endif %}
+            </span>
+            {% if item.label %}<div class="mt-2 fw-bold">{{ item.label }}</div>{% endif %}
+          </div>
+        {% elif item.label %}
           <small class="text-muted">{{ item.label }}</small>
-          <div class="fw-bold {{ item.color_class }}">
+          <div class="fw-bold">
             {{ item.value }}
             {% if item.suffix %}<small class="text-muted">{{ item.suffix }}</small>{% endif %}
           </div>
         {% else %}
-          <div class="{{ item.color_class }}">
+          <div>
             {{ item.value }}
             {% if item.suffix %}<small class="text-muted">{{ item.suffix }}</small>{% endif %}
           </div>
         {% endif %}
         {% if item.additional_value %}
-          <div class="fw-bold {{ item.color_class }}">{{ item.additional_value }}</div>
+          <div class="text-center fw-bold {{ item.color_class }}">{{ item.additional_value }}</div>
         {% endif %}
       </div>
     {% endfor %}
