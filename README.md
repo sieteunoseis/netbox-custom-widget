@@ -196,6 +196,38 @@ Monitor services with adaptive color coding:
 
 Status values like "Active", "Running", "Down", or "Standby" are automatically color-coded.
 
+### Public API Demo (No Auth Required)
+
+Try these examples out of the box to test the plugin:
+
+```python
+# NVD CVE Database — large badge with total CVE count
+{
+    'name': 'NVD CVE Database',
+    'url': 'https://services.nvd.nist.gov/rest/json/cves/2.0?resultsPerPage=0',
+    'mappings': [
+        {'field': 'totalResults', 'label': 'Total CVEs', 'format': 'number', 'color': 'danger'},
+    ],
+    'display_mode': 'block',
+    'refresh_interval': 3600,
+    'link': 'https://nvd.nist.gov/',
+}
+
+# GitHub Repo Stats — stars, issues, forks side-by-side
+{
+    'name': 'NetBox GitHub',
+    'url': 'https://api.github.com/repos/netbox-community/netbox',
+    'mappings': [
+        {'field': 'stargazers_count', 'label': 'Stars', 'format': 'number', 'color': 'warning'},
+        {'field': 'open_issues_count', 'label': 'Issues', 'format': 'number', 'color': 'danger'},
+        {'field': 'forks_count', 'label': 'Forks', 'format': 'number', 'color': 'primary'},
+    ],
+    'display_mode': 'grid',
+    'refresh_interval': 300,
+    'link': 'https://github.com/netbox-community/netbox',
+}
+```
+
 ## Requirements
 
 - NetBox >= 4.0.0
