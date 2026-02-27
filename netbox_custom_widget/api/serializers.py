@@ -28,6 +28,7 @@ class CustomAPIEndpointSerializer(NetBoxModelSerializer):
             "mappings",
             "display_mode",
             "refresh_interval",
+            "link",
             "verify_ssl",
             "timeout",
             "description",

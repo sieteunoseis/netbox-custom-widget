@@ -16,7 +16,7 @@ class CustomAPIEndpointForm(NetBoxModelForm):
     fieldsets = (
         FieldSet("name", "description", name="General"),
         FieldSet("url", "http_method", "headers", "body", "verify_ssl", "timeout", name="API Configuration"),
-        FieldSet("mappings", "display_mode", "refresh_interval", name="Display"),
+        FieldSet("mappings", "display_mode", "refresh_interval", "link", name="Display"),
         FieldSet("comments", "tags", name="Details"),
     )
 
@@ -31,6 +31,7 @@ class CustomAPIEndpointForm(NetBoxModelForm):
             "mappings",
             "display_mode",
             "refresh_interval",
+            "link",
             "verify_ssl",
             "timeout",
             "description",
@@ -67,6 +68,7 @@ class CustomAPIEndpointImportForm(NetBoxModelImportForm):
             "mappings",
             "display_mode",
             "refresh_interval",
+            "link",
             "verify_ssl",
             "timeout",
             "description",

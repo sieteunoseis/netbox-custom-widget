@@ -10,7 +10,7 @@ from django.conf import settings
 from django.db.models.signals import post_migrate
 from netbox.plugins import PluginConfig
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +45,7 @@ def provision_endpoints(sender, **kwargs):
                 "refresh_interval": ep_config.get("refresh_interval", 30),
                 "verify_ssl": ep_config.get("verify_ssl", global_verify_ssl),
                 "timeout": ep_config.get("timeout", 30),
+                "link": ep_config.get("link", ""),
                 "description": ep_config.get("description", ""),
             }
 

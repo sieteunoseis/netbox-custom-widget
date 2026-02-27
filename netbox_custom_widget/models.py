@@ -27,10 +27,14 @@ class DisplayModeChoices(ChoiceSet):
 
     MODE_LIST = "list"
     MODE_BLOCK = "block"
+    MODE_GRID = "grid"
+    MODE_TABLE = "table"
 
     CHOICES = [
         (MODE_LIST, "List", "blue"),
         (MODE_BLOCK, "Block", "gray"),
+        (MODE_GRID, "Grid", "green"),
+        (MODE_TABLE, "Table", "purple"),
     ]
 
 
@@ -86,6 +90,11 @@ class CustomAPIEndpoint(NetBoxModel):
     timeout = models.PositiveIntegerField(
         default=30,
         help_text="Request timeout in seconds",
+    )
+    link = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text="Custom URL to link from the widget (opens in new tab)",
     )
     description = models.TextField(
         blank=True,

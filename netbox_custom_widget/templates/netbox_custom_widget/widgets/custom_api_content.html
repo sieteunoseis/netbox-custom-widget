@@ -23,7 +23,54 @@
         </span>
       </div>
     {% endfor %}
+
+  {% elif endpoint.display_mode == "grid" %}
+    <div class="d-flex flex-wrap gap-2 px-2 py-1">
+      {% for item in mapped_data %}
+        <div class="flex-fill text-center p-2 rounded {% if item.color_class %}{{ item.color_class }}{% else %}border{% endif %}" style="min-width: 100px;">
+          <div class="fw-bold">
+            {% if item.label %}{{ item.label }}{% else %}{{ item.value }}{% endif %}
+          </div>
+          {% if item.additional_value %}
+            <div class="small">{{ item.additional_value }}</div>
+          {% elif item.label %}
+            <div class="small">{{ item.value }}</div>
+          {% endif %}
+          {% if item.suffix %}<div class="small opacity-75">{{ item.suffix }}</div>{% endif %}
+        </div>
+      {% endfor %}
+    </div>
+
+  {% elif endpoint.display_mode == "table" %}
+    <div class="table-responsive">
+      <table class="table table-sm table-hover mb-0">
+        <thead>
+          <tr>
+            {% for item in mapped_data %}
+              <th class="small text-muted">{% if item.label %}{{ item.label }}{% else %}Field {{ forloop.counter }}{% endif %}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            {% for item in mapped_data %}
+              <td>
+                <span class="{{ item.color_class }}">
+                  {{ item.value }}
+                  {% if item.suffix %}<small class="text-muted">{{ item.suffix }}</small>{% endif %}
+                </span>
+                {% if item.additional_value %}
+                  <br><span class="fw-bold {{ item.color_class }}">{{ item.additional_value }}</span>
+                {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
   {% else %}
+    {# block mode (default fallback) #}
     {% for item in mapped_data %}
       <div class="px-2 py-1 {% if not forloop.last %}border-bottom{% endif %}">
         {% if item.label %}
@@ -56,9 +103,16 @@
       </small>
     {% endif %}
 
-    <a href="{{ endpoint.get_absolute_url }}" class="btn btn-sm btn-outline-secondary">
-      <i class="mdi mdi-cog"></i>
-    </a>
+    <div>
+      {% if endpoint.link %}
+        <a href="{{ endpoint.link }}" target="_blank" class="btn btn-sm btn-outline-primary me-1" title="Open link">
+          <i class="mdi mdi-open-in-new"></i>
+        </a>
+      {% endif %}
+      <a href="{{ endpoint.get_absolute_url }}" class="btn btn-sm btn-outline-secondary" title="Configure">
+        <i class="mdi mdi-cog"></i>
+      </a>
+    </div>
   </div>
 {% else %}
   <p class="text-center text-muted py-2">
