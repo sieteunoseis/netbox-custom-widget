@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "netbox-custom-widget"
-version = "0.3.0"
+version = "0.3.1"
 description = "NetBox plugin for custom API dashboard widgets - call any API and display results"
 readme = "README.md"
 license = {text = "Apache-2.0"}
