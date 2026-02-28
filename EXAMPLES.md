@@ -552,24 +552,30 @@ Each row has the label on the left and the colored value badge on the right, wit
 
 ---
 
-### Current Time in Multiple Zones (WorldTimeAPI)
+### Current Time in Multiple Zones (TimeAPI.io)
 
 Show the current time for a specific timezone. Create multiple widgets for different zones.
 
-**API:** `https://worldtimeapi.org/api/timezone/America/New_York`
+**API:** `https://timeapi.io/api/time/current/zone?timeZone=America/New_York`
 
 <details>
 <summary>Sample API Response</summary>
 
 ```json
 {
-  "abbreviation": "EST",
-  "datetime": "2026-02-28T07:00:00.000000-05:00",
-  "day_of_week": 6,
-  "day_of_year": 59,
-  "timezone": "America/New_York",
-  "utc_offset": "-05:00",
-  "week_number": 9
+  "year": 2026,
+  "month": 2,
+  "day": 28,
+  "hour": 7,
+  "minute": 30,
+  "seconds": 16,
+  "milliSeconds": 647,
+  "dateTime": "2026-02-28T07:30:16.6476606",
+  "date": "02/28/2026",
+  "time": "07:30",
+  "timeZone": "America/New_York",
+  "dayOfWeek": "Saturday",
+  "dstActive": false
 }
 ```
 </details>
@@ -577,25 +583,25 @@ Show the current time for a specific timezone. Create multiple widgets for diffe
 ```python
 {
     'name': 'New York Time',
-    'url': 'https://worldtimeapi.org/api/timezone/America/New_York',
+    'url': 'https://timeapi.io/api/time/current/zone?timeZone=America/New_York',
     'mappings': [
         {
-            'field': 'datetime',
+            'field': 'dateTime',
             'label': 'Current Time',
         },
         {
-            'field': 'abbreviation',
+            'field': 'timeZone',
             'label': 'Timezone',
             'color': 'primary',
         },
         {
-            'field': 'utc_offset',
-            'label': 'UTC Offset',
+            'field': 'dayOfWeek',
+            'label': 'Day of Week',
             'color': 'info',
         },
         {
-            'field': 'day_of_year',
-            'label': 'Day of Year',
+            'field': 'dstActive',
+            'label': 'DST Active',
             'color': 'secondary',
         },
     ],
