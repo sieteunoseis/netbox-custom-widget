@@ -11,7 +11,10 @@ class CustomAPIEndpointTable(NetBoxTable):
 
     name = tables.Column(linkify=True)
     url = tables.TemplateColumn(
-        template_code='<span style="display:inline-block; max-width:400px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ value }}</span>',
+        template_code=(
+            '<span style="display:inline-block; max-width:400px; overflow:hidden;'
+            ' text-overflow:ellipsis; white-space:nowrap;">{{ value }}</span>'
+        ),
     )
     http_method = ChoiceFieldColumn()
     display_mode = ChoiceFieldColumn()
