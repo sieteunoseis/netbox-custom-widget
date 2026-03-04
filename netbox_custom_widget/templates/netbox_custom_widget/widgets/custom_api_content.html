@@ -9,11 +9,15 @@
 {% elif table_data %}
   {# Multi-row table from array data #}
   <div class="table-responsive">
-    <table class="table table-sm table-hover mb-0">
+    <table class="table table-sm table-hover mb-0 sortable-table" style="table-layout: fixed; width: 100%;">
       <thead>
         <tr>
-          {% for header in table_data.headers %}
-            <th class="small text-muted">{{ header }}</th>
+          {% for col in table_data.columns %}
+            <th class="small text-muted text-nowrap user-select-none" role="button"
+                {% if col.width %}style="width: {{ col.width }}; cursor: pointer;"{% else %}style="cursor: pointer;"{% endif %}
+                data-col-index="{{ forloop.counter0 }}">
+              {{ col.header }} <i class="mdi mdi-unfold-more-horizontal" style="opacity: 0.4;"></i>
+            </th>
           {% endfor %}
         </tr>
       </thead>
@@ -21,8 +25,8 @@
         {% for row in table_data.rows %}
           <tr>
             {% for cell in row %}
-              <td>
-                <span class="{{ cell.color_class }}">
+              <td style="white-space: normal; overflow-wrap: break-word;">
+                <span class="{{ cell.color_class }}" style="white-space: normal; display: inline-block;">
                   {{ cell.value }}
                   {% if cell.suffix %}<small class="text-muted">{{ cell.suffix }}</small>{% endif %}
                 </span>
@@ -33,6 +37,41 @@
       </tbody>
     </table>
   </div>
+  <script>
+    (function() {
+      const table = document.currentScript.closest('.card-body, [hx-target]')
+        ?.querySelector('.sortable-table') || document.currentScript.previousElementSibling.querySelector('.sortable-table');
+      if (!table) return;
+      const headers = table.querySelectorAll('thead th[data-col-index]');
+      let sortCol = -1, sortAsc = true;
+      headers.forEach(th => {
+        th.addEventListener('click', function() {
+          const col = parseInt(this.dataset.colIndex);
+          if (sortCol === col) { sortAsc = !sortAsc; } else { sortCol = col; sortAsc = true; }
+          const tbody = table.querySelector('tbody');
+          const rows = Array.from(tbody.querySelectorAll('tr'));
+          rows.sort((a, b) => {
+            const aText = (a.children[col]?.textContent || '').trim().toLowerCase();
+            const bText = (b.children[col]?.textContent || '').trim().toLowerCase();
+            const aNum = parseFloat(aText), bNum = parseFloat(bText);
+            if (!isNaN(aNum) && !isNaN(bNum)) return sortAsc ? aNum - bNum : bNum - aNum;
+            return sortAsc ? aText.localeCompare(bText) : bText.localeCompare(aText);
+          });
+          rows.forEach(r => tbody.appendChild(r));
+          headers.forEach(h => {
+            const icon = h.querySelector('i');
+            if (parseInt(h.dataset.colIndex) === col) {
+              icon.className = sortAsc ? 'mdi mdi-chevron-up' : 'mdi mdi-chevron-down';
+              icon.style.opacity = '1';
+            } else {
+              icon.className = 'mdi mdi-unfold-more-horizontal';
+              icon.style.opacity = '0.4';
+            }
+          });
+        });
+      });
+    })();
+  </script>
 
   <div class="d-flex justify-content-between align-items-center mt-2 px-2 border-top pt-2">
     {% if endpoint.refresh_interval > 0 %}

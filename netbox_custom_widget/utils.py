@@ -344,9 +344,14 @@ def process_array_mappings(data, mappings):
     Returns:
         dict with "headers" (list of str) and "rows" (list of lists of cell dicts)
     """
-    headers = []
+    columns = []
     for i, m in enumerate(mappings):
-        headers.append(m.get("label") or m.get("field", f"Column {i + 1}"))
+        columns.append(
+            {
+                "header": m.get("label") or m.get("field", f"Column {i + 1}"),
+                "width": m.get("width", ""),
+            }
+        )
 
     rows = []
     for item in data:
@@ -379,4 +384,4 @@ def process_array_mappings(data, mappings):
             )
         rows.append(row)
 
-    return {"headers": headers, "rows": rows}
+    return {"columns": columns, "rows": rows}

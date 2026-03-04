@@ -58,6 +58,11 @@
             </table>
         </div>
 
+        {% include 'inc/panels/custom_fields.html' %}
+        {% include 'inc/panels/tags.html' %}
+    </div>
+
+    <div class="col col-md-6">
         {% if object.headers %}
         <div class="card">
             <h5 class="card-header">Headers</h5>
@@ -76,12 +81,14 @@
         </div>
         {% endif %}
 
-        {% include 'inc/panels/custom_fields.html' %}
-        {% include 'inc/panels/tags.html' %}
         {% include 'inc/panels/comments.html' %}
-    </div>
 
-    <div class="col col-md-6">
+        {% plugin_right_page object %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col col-md-12">
         <div class="card">
             <h5 class="card-header">Live Preview</h5>
             <div class="card-body">
@@ -91,12 +98,6 @@
             </div>
         </div>
 
-        {% plugin_right_page object %}
-    </div>
-</div>
-
-<div class="row">
-    <div class="col col-md-12">
         {% plugin_full_width_page object %}
     </div>
 </div>
