@@ -183,9 +183,7 @@ def format_duration(value):
     s = str(value).strip()
 
     # ISO 8601 duration: P[nD]T[nH][nM][nS]
-    iso_match = re.match(
-        r"^P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?$", s, re.IGNORECASE
-    )
+    iso_match = re.match(r"^P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?$", s, re.IGNORECASE)
     if iso_match:
         days = int(iso_match.group(1) or 0)
         hours = int(iso_match.group(2) or 0)
