@@ -164,6 +164,119 @@ def fetch_api_data(endpoint):
         return {"data": None, "error": str(e)}
 
 
+def format_duration(value):
+    """
+    Convert a duration value to human-readable format (e.g., "7d 18h 25m").
+
+    Detects and handles multiple input formats:
+    - .NET TimeSpan: "7.18:25:31.4904775" (days.HH:mm:ss.fractional)
+    - HH:MM:SS: "18:25:31"
+    - Seconds (int/float): 640531 or "640531"
+    - Milliseconds: 640531000 (auto-detected when > 100000000)
+    - ISO 8601 duration: "P7DT18H25M31S" or "PT18H25M"
+    - Human-readable: "7 days 18 hours" (returned as-is)
+
+    Returns formatted string or original value if format not recognized.
+    """
+    import re
+
+    s = str(value).strip()
+
+    # ISO 8601 duration: P[nD]T[nH][nM][nS]
+    iso_match = re.match(
+        r"^P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?$", s, re.IGNORECASE
+    )
+    if iso_match:
+        days = int(iso_match.group(1) or 0)
+        hours = int(iso_match.group(2) or 0)
+        minutes = int(iso_match.group(3) or 0)
+        pieces = []
+        if days > 0:
+            pieces.append(f"{days}d")
+        if hours > 0:
+            pieces.append(f"{hours}h")
+        if minutes > 0:
+            pieces.append(f"{minutes}m")
+        return " ".join(pieces) if pieces else "0m"
+
+    # .NET TimeSpan or HH:MM:SS variants
+    if ":" in s:
+        try:
+            days = 0
+            time_str = s
+            # .NET format: days before first dot if dot comes before colon
+            if "." in s.split(":")[0]:
+                day_part, time_str = s.split(".", 1)
+                days = int(day_part)
+            # Strip fractional seconds
+            time_part = time_str.split(".")[0] if "." in time_str else time_str
+            parts = time_part.split(":")
+            hours = int(parts[0]) if len(parts) > 0 else 0
+            minutes = int(parts[1]) if len(parts) > 1 else 0
+
+            pieces = []
+            if days > 0:
+                pieces.append(f"{days}d")
+            if hours > 0:
+                pieces.append(f"{hours}h")
+            if minutes > 0:
+                pieces.append(f"{minutes}m")
+            return " ".join(pieces) if pieces else "0m"
+        except (ValueError, IndexError):
+            return s
+
+    # Numeric seconds or milliseconds
+    try:
+        num = float(s)
+        # Heuristic: values > 100M are likely milliseconds
+        if num > 100_000_000:
+            num = num / 1000
+        total_seconds = int(num)
+        days = total_seconds // 86400
+        hours = (total_seconds % 86400) // 3600
+        minutes = (total_seconds % 3600) // 60
+
+        pieces = []
+        if days > 0:
+            pieces.append(f"{days}d")
+        if hours > 0:
+            pieces.append(f"{hours}h")
+        if minutes > 0:
+            pieces.append(f"{minutes}m")
+        if not pieces:
+            return f"{total_seconds}s"
+        return " ".join(pieces)
+    except (ValueError, TypeError):
+        pass
+
+    # Already human-readable or unrecognized — return as-is
+    return s
+
+
+def format_value(value, fmt):
+    """
+    Format a value based on the format type.
+
+    Supported formats:
+    - "text": No formatting (default)
+    - "number": Comma-separated integers (e.g., 1,234)
+    - "duration": Auto-detects time format and converts to "Xd Xh Xm"
+    """
+    if value is None:
+        return value
+
+    if fmt == "number":
+        try:
+            return f"{int(value):,}"
+        except (ValueError, TypeError):
+            return value
+
+    if fmt == "duration":
+        return format_duration(value)
+
+    return value
+
+
 def process_mappings(data, mappings):
     """
     Apply field mappings to extracted API data.
@@ -203,11 +316,7 @@ def process_mappings(data, mappings):
 
         # Format value
         fmt = mapping.get("format", "text")
-        if fmt == "number" and value is not None:
-            try:
-                value = f"{int(value):,}"
-            except (ValueError, TypeError):
-                pass
+        value = format_value(value, fmt)
 
         results.append(
             {
@@ -261,11 +370,7 @@ def process_array_mappings(data, mappings):
 
             # Format value
             fmt = mapping.get("format", "text")
-            if fmt == "number" and value is not None:
-                try:
-                    value = f"{int(value):,}"
-                except (ValueError, TypeError):
-                    pass
+            value = format_value(value, fmt)
 
             row.append(
                 {
