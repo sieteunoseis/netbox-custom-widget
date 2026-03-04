@@ -59,6 +59,27 @@ urlpatterns = [
         name="customapiendpoint_journal",
         kwargs={"model": models.CustomAPIEndpoint},
     ),
+    # BookmarkLink URLs
+    path("bookmarks/", views.BookmarkLinkListView.as_view(), name="bookmarklink_list"),
+    path("bookmarks/add/", views.BookmarkLinkEditView.as_view(), name="bookmarklink_add"),
+    path("bookmarks/import/", views.BookmarkLinkBulkImportView.as_view(), name="bookmarklink_import"),
+    path("bookmarks/edit/", views.BookmarkLinkBulkEditView.as_view(), name="bookmarklink_bulk_edit"),
+    path("bookmarks/delete/", views.BookmarkLinkBulkDeleteView.as_view(), name="bookmarklink_bulk_delete"),
+    path("bookmarks/<int:pk>/", views.BookmarkLinkView.as_view(), name="bookmarklink"),
+    path("bookmarks/<int:pk>/edit/", views.BookmarkLinkEditView.as_view(), name="bookmarklink_edit"),
+    path("bookmarks/<int:pk>/delete/", views.BookmarkLinkDeleteView.as_view(), name="bookmarklink_delete"),
+    path(
+        "bookmarks/<int:pk>/changelog/",
+        ObjectChangeLogView.as_view(),
+        name="bookmarklink_changelog",
+        kwargs={"model": models.BookmarkLink},
+    ),
+    path(
+        "bookmarks/<int:pk>/journal/",
+        ObjectJournalView.as_view(),
+        name="bookmarklink_journal",
+        kwargs={"model": models.BookmarkLink},
+    ),
     # HTMX widget refresh
     path(
         "refresh/<int:pk>/",

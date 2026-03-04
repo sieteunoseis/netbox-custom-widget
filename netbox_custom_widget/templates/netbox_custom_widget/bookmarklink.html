@@ -1,0 +1,72 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="{% url 'plugins:netbox_custom_widget:bookmarklink_list' %}">Bookmarks</a></li>
+<li class="breadcrumb-item">{{ object }}</li>
+{% endblock breadcrumbs %}
+
+{% block content %}
+<div class="row">
+    <div class="col col-md-6">
+        <div class="card">
+            <h5 class="card-header">Bookmark</h5>
+            <table class="table table-hover attr-table">
+                <tr>
+                    <th scope="row">Name</th>
+                    <td>{{ object.name }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">URL</th>
+                    <td>
+                        <a href="{{ object.url }}" target="_blank" style="word-break: break-all;">
+                            {{ object.url }} <i class="mdi mdi-open-in-new"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Category</th>
+                    <td>{{ object.category|placeholder }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Icon</th>
+                    <td>
+                        {% if object.icon %}
+                            <i class="mdi {{ object.icon }}"></i> <code>{{ object.icon }}</code>
+                        {% else %}
+                            {{ object.icon|placeholder }}
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Weight</th>
+                    <td>{{ object.weight }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Open in New Tab</th>
+                    <td>{% if object.new_tab %}{% checkmark True %}{% else %}{% checkmark False %}{% endif %}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Description</th>
+                    <td>{{ object.description|placeholder }}</td>
+                </tr>
+            </table>
+        </div>
+
+        {% include 'inc/panels/custom_fields.html' %}
+        {% include 'inc/panels/tags.html' %}
+    </div>
+
+    <div class="col col-md-6">
+        {% include 'inc/panels/comments.html' %}
+        {% plugin_right_page object %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col col-md-12">
+        {% plugin_full_width_page object %}
+    </div>
+</div>
+{% endblock content %}

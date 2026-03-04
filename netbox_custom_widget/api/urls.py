@@ -6,5 +6,6 @@ from . import views
 
 router = NetBoxRouter()
 router.register("endpoints", views.CustomAPIEndpointViewSet)
+router.register("bookmarks", views.BookmarkLinkViewSet)
 
 urlpatterns = router.urls

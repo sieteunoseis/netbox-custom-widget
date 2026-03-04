@@ -5,7 +5,7 @@ from netbox.forms import NetBoxModelBulkEditForm, NetBoxModelFilterSetForm, NetB
 from utilities.forms.fields import CommentField, TagFilterField
 from utilities.forms.rendering import FieldSet
 
-from .models import CustomAPIEndpoint, DisplayModeChoices, HTTPMethodChoices
+from .models import BookmarkLink, CustomAPIEndpoint, DisplayModeChoices, HTTPMethodChoices
 
 
 class CustomAPIEndpointForm(NetBoxModelForm):
@@ -91,3 +91,77 @@ class CustomAPIEndpointBulkEditForm(NetBoxModelBulkEditForm):
     comments = CommentField()
 
     nullable_fields = ["description", "comments", "body"]
+
+
+#
+# BookmarkLink Forms
+#
+
+
+class BookmarkLinkForm(NetBoxModelForm):
+    """Form for creating/editing BookmarkLink objects."""
+
+    comments = CommentField()
+
+    fieldsets = (
+        FieldSet("name", "url", "description", name="General"),
+        FieldSet("category", "icon", "weight", "new_tab", name="Display"),
+        FieldSet("comments", "tags", name="Details"),
+    )
+
+    class Meta:
+        model = BookmarkLink
+        fields = [
+            "name",
+            "url",
+            "description",
+            "category",
+            "icon",
+            "weight",
+            "new_tab",
+            "comments",
+            "tags",
+        ]
+
+
+class BookmarkLinkFilterForm(NetBoxModelFilterSetForm):
+    """Filter form for BookmarkLink list view."""
+
+    model = BookmarkLink
+
+    name = forms.CharField(required=False)
+    category = forms.CharField(required=False)
+    tag = TagFilterField(model)
+
+
+class BookmarkLinkImportForm(NetBoxModelImportForm):
+    """Import form for BookmarkLink objects."""
+
+    class Meta:
+        model = BookmarkLink
+        fields = [
+            "name",
+            "url",
+            "description",
+            "category",
+            "icon",
+            "weight",
+            "new_tab",
+            "comments",
+            "tags",
+        ]
+
+
+class BookmarkLinkBulkEditForm(NetBoxModelBulkEditForm):
+    """Bulk edit form for BookmarkLink objects."""
+
+    model = BookmarkLink
+
+    category = forms.CharField(max_length=100, required=False)
+    icon = forms.CharField(max_length=50, required=False)
+    weight = forms.IntegerField(required=False)
+    new_tab = forms.NullBooleanField(required=False)
+    description = forms.CharField(max_length=200, required=False)
+    comments = CommentField()
+
+    nullable_fields = ["description", "comments", "category", "icon"]

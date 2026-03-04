@@ -113,3 +113,56 @@ class CustomAPIEndpoint(NetBoxModel):
 
     def get_absolute_url(self):
         return reverse("plugins:netbox_custom_widget:customapiendpoint", args=[self.pk])
+
+
+class BookmarkLink(NetBoxModel):
+    """
+    Stores a bookmark link for display in dashboard widgets.
+
+    Bookmarks can be grouped by category and ordered by weight
+    for use as a centralized link directory.
+    """
+
+    name = models.CharField(
+        max_length=200,
+        help_text="Display name for this bookmark",
+    )
+    url = models.URLField(
+        max_length=500,
+        help_text="Bookmark URL",
+    )
+    description = models.TextField(
+        blank=True,
+    )
+    category = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="Grouping category (e.g., OHSU Tools, Monitoring)",
+    )
+    icon = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text="MDI icon class (e.g., mdi-help-circle)",
+    )
+    weight = models.PositiveIntegerField(
+        default=100,
+        help_text="Sort order within category (lower = first)",
+    )
+    new_tab = models.BooleanField(
+        default=True,
+        help_text="Open link in new tab",
+    )
+    comments = models.TextField(
+        blank=True,
+    )
+
+    class Meta:
+        ordering = ["category", "weight", "name"]
+        verbose_name = "Bookmark"
+        verbose_name_plural = "Bookmarks"
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse("plugins:netbox_custom_widget:bookmarklink", args=[self.pk])

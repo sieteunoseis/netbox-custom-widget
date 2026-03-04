@@ -10,7 +10,7 @@ from django.conf import settings
 from django.db.models.signals import post_migrate
 from netbox.plugins import PluginConfig
 
-__version__ = "0.4.1"
+__version__ = "0.5.0"
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +76,7 @@ class CustomWidgetConfig(PluginConfig):
     author_email = "jeremy.worden@gmail.com"
     base_url = "custom-widget"
     min_version = "4.0.0"
+    javascript = ("netbox_custom_widget/js/prevent_double_submit.js",)
 
     required_settings = []
 

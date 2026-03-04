@@ -1,0 +1,26 @@
+{% load i18n %}
+
+{% if grouped_bookmarks %}
+  {% for group in grouped_bookmarks %}
+    <h6 class="text-muted mt-2 mb-1">{{ group.category }}</h6>
+    <div class="list-group list-group-flush">
+      {% for bookmark in group.bookmarks %}
+        <a href="{{ bookmark.url }}"
+           {% if bookmark.new_tab %}target="_blank" rel="noopener"{% endif %}
+           class="list-group-item list-group-item-action py-1 px-2 d-flex align-items-center">
+          {% if bookmark.icon %}
+            <i class="mdi {{ bookmark.icon }} me-2"></i>
+          {% else %}
+            <i class="mdi mdi-link me-2"></i>
+          {% endif %}
+          {{ bookmark.name }}
+        </a>
+      {% endfor %}
+    </div>
+  {% endfor %}
+{% else %}
+  <p class="text-center text-muted py-2">
+    <i class="mdi mdi-information-outline"></i>
+    {% trans "No bookmarks found." %}
+  </p>
+{% endif %}

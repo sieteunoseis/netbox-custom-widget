@@ -21,6 +21,19 @@ menu = PluginMenu(
                         ),
                     ),
                 ),
+                PluginMenuItem(
+                    link="plugins:netbox_custom_widget:bookmarklink_list",
+                    link_text="Bookmarks",
+                    permissions=["netbox_custom_widget.view_bookmarklink"],
+                    buttons=(
+                        PluginMenuButton(
+                            link="plugins:netbox_custom_widget:bookmarklink_add",
+                            title="Add",
+                            icon_class="mdi mdi-plus-thick",
+                            permissions=["netbox_custom_widget.add_bookmarklink"],
+                        ),
+                    ),
+                ),
             ),
         ),
     ),

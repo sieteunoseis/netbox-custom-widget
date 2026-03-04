@@ -3,7 +3,7 @@
 import django_filters
 from netbox.filtersets import NetBoxModelFilterSet
 
-from .models import CustomAPIEndpoint, DisplayModeChoices, HTTPMethodChoices
+from .models import BookmarkLink, CustomAPIEndpoint, DisplayModeChoices, HTTPMethodChoices
 
 
 class CustomAPIEndpointFilterSet(NetBoxModelFilterSet):
@@ -24,3 +24,24 @@ class CustomAPIEndpointFilterSet(NetBoxModelFilterSet):
         from django.db.models import Q
 
         return queryset.filter(Q(name__icontains=value) | Q(url__icontains=value) | Q(description__icontains=value))
+
+
+class BookmarkLinkFilterSet(NetBoxModelFilterSet):
+    """Filterset for BookmarkLink model."""
+
+    name = django_filters.CharFilter(lookup_expr="icontains")
+    category = django_filters.CharFilter(lookup_expr="icontains")
+
+    class Meta:
+        model = BookmarkLink
+        fields = ["id", "name", "category", "new_tab"]
+
+    def search(self, queryset, name, value):
+        """Search across multiple fields."""
+        if not value.strip():
+            return queryset
+        from django.db.models import Q
+
+        return queryset.filter(
+            Q(name__icontains=value) | Q(url__icontains=value) | Q(description__icontains=value) | Q(category__icontains=value)
+        )

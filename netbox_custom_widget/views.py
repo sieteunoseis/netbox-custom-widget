@@ -7,15 +7,19 @@ from django.template.loader import render_to_string
 from django.views import View
 from netbox.views import generic
 
-from .filtersets import CustomAPIEndpointFilterSet
+from .filtersets import BookmarkLinkFilterSet, CustomAPIEndpointFilterSet
 from .forms import (
+    BookmarkLinkBulkEditForm,
+    BookmarkLinkFilterForm,
+    BookmarkLinkForm,
+    BookmarkLinkImportForm,
     CustomAPIEndpointBulkEditForm,
     CustomAPIEndpointFilterForm,
     CustomAPIEndpointForm,
     CustomAPIEndpointImportForm,
 )
-from .models import CustomAPIEndpoint
-from .tables import CustomAPIEndpointTable
+from .models import BookmarkLink, CustomAPIEndpoint
+from .tables import BookmarkLinkTable, CustomAPIEndpointTable
 from .utils import fetch_api_data, process_array_mappings, process_mappings
 
 logger = logging.getLogger(__name__)
@@ -91,6 +95,63 @@ class CustomAPIEndpointBulkDeleteView(generic.BulkDeleteView):
     queryset = CustomAPIEndpoint.objects.all()
     filterset = CustomAPIEndpointFilterSet
     table = CustomAPIEndpointTable
+
+
+#
+# BookmarkLink Views
+#
+
+
+class BookmarkLinkListView(generic.ObjectListView):
+    """List view for BookmarkLink objects."""
+
+    queryset = BookmarkLink.objects.prefetch_related("tags")
+    table = BookmarkLinkTable
+    filterset = BookmarkLinkFilterSet
+    filterset_form = BookmarkLinkFilterForm
+
+
+class BookmarkLinkView(generic.ObjectView):
+    """Detail view for BookmarkLink objects."""
+
+    queryset = BookmarkLink.objects.prefetch_related("tags")
+
+
+class BookmarkLinkEditView(generic.ObjectEditView):
+    """Create/Edit view for BookmarkLink objects."""
+
+    queryset = BookmarkLink.objects.all()
+    form = BookmarkLinkForm
+
+
+class BookmarkLinkDeleteView(generic.ObjectDeleteView):
+    """Delete view for BookmarkLink objects."""
+
+    queryset = BookmarkLink.objects.all()
+
+
+class BookmarkLinkBulkImportView(generic.BulkImportView):
+    """Bulk import view for BookmarkLink objects."""
+
+    queryset = BookmarkLink.objects.all()
+    model_form = BookmarkLinkImportForm
+
+
+class BookmarkLinkBulkEditView(generic.BulkEditView):
+    """Bulk edit view for BookmarkLink objects."""
+
+    queryset = BookmarkLink.objects.prefetch_related("tags")
+    filterset = BookmarkLinkFilterSet
+    table = BookmarkLinkTable
+    form = BookmarkLinkBulkEditForm
+
+
+class BookmarkLinkBulkDeleteView(generic.BulkDeleteView):
+    """Bulk delete view for BookmarkLink objects."""
+
+    queryset = BookmarkLink.objects.all()
+    filterset = BookmarkLinkFilterSet
+    table = BookmarkLinkTable
 
 
 #
