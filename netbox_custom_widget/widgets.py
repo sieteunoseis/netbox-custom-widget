@@ -9,7 +9,7 @@ from extras.dashboard.utils import register_widget
 from extras.dashboard.widgets import DashboardWidget, WidgetConfigForm
 
 from .models import CustomAPIEndpoint
-from .utils import fetch_api_data, process_mappings
+from .utils import fetch_api_data, process_array_mappings, process_mappings
 
 logger = logging.getLogger(__name__)
 
@@ -85,13 +85,11 @@ class CustomAPIWidget(DashboardWidget):
                 },
             )
 
-        mapped_data = process_mappings(result["data"], endpoint.mappings)
+        context = {"endpoint": endpoint, "error": None}
 
-        return render_to_string(
-            self.template_name,
-            {
-                "mapped_data": mapped_data,
-                "endpoint": endpoint,
-                "error": None,
-            },
-        )
+        if endpoint.display_mode == "table" and isinstance(result["data"], list):
+            context["table_data"] = process_array_mappings(result["data"], endpoint.mappings)
+        else:
+            context["mapped_data"] = process_mappings(result["data"], endpoint.mappings)
+
+        return render_to_string(self.template_name, context)

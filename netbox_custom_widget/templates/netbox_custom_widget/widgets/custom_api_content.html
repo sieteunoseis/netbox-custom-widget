@@ -6,6 +6,56 @@
       <i class="mdi mdi-alert"></i> {{ error }}
     </span>
   </div>
+{% elif table_data %}
+  {# Multi-row table from array data #}
+  <div class="table-responsive">
+    <table class="table table-sm table-hover mb-0">
+      <thead>
+        <tr>
+          {% for header in table_data.headers %}
+            <th class="small text-muted">{{ header }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in table_data.rows %}
+          <tr>
+            {% for cell in row %}
+              <td>
+                <span class="{{ cell.color_class }}">
+                  {{ cell.value }}
+                  {% if cell.suffix %}<small class="text-muted">{{ cell.suffix }}</small>{% endif %}
+                </span>
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mt-2 px-2 border-top pt-2">
+    {% if endpoint.refresh_interval > 0 %}
+      <small class="text-muted">
+        <i class="mdi mdi-refresh"></i> {{ endpoint.refresh_interval }}s
+      </small>
+    {% else %}
+      <small class="text-muted">
+        <i class="mdi mdi-pause-circle"></i> {% trans "Manual" %}
+      </small>
+    {% endif %}
+
+    <div>
+      {% if endpoint.link %}
+        <a href="{{ endpoint.link }}" target="_blank" class="btn btn-sm btn-outline-primary me-1" title="Open link">
+          <i class="mdi mdi-open-in-new"></i>
+        </a>
+      {% endif %}
+      <a href="{{ endpoint.get_absolute_url }}" class="btn btn-sm btn-outline-secondary" title="Configure">
+        <i class="mdi mdi-cog"></i>
+      </a>
+    </div>
+  </div>
 {% elif mapped_data %}
   {% if endpoint.display_mode == "list" %}
     {% for item in mapped_data %}

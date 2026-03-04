@@ -16,7 +16,7 @@ from .forms import (
 )
 from .models import CustomAPIEndpoint
 from .tables import CustomAPIEndpointTable
-from .utils import fetch_api_data, process_mappings
+from .utils import fetch_api_data, process_array_mappings, process_mappings
 
 logger = logging.getLogger(__name__)
 
@@ -43,14 +43,17 @@ class CustomAPIEndpointView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         # Fetch live data for preview
         result = fetch_api_data(instance)
-        mapped_data = []
-        if result["data"] is not None:
-            mapped_data = process_mappings(result["data"], instance.mappings)
+        context = {"api_result": result}
 
-        return {
-            "api_result": result,
-            "mapped_data": mapped_data,
-        }
+        if result["data"] is not None:
+            if instance.display_mode == "table" and isinstance(result["data"], list):
+                context["table_data"] = process_array_mappings(result["data"], instance.mappings)
+            else:
+                context["mapped_data"] = process_mappings(result["data"], instance.mappings)
+        else:
+            context["mapped_data"] = []
+
+        return context
 
 
 class CustomAPIEndpointEditView(generic.ObjectEditView):
@@ -113,14 +116,15 @@ class WidgetRefreshView(View):
             )
             return HttpResponse(html)
 
-        mapped_data = process_mappings(result["data"], endpoint.mappings)
+        context = {"endpoint": endpoint, "error": None}
+
+        if endpoint.display_mode == "table" and isinstance(result["data"], list):
+            context["table_data"] = process_array_mappings(result["data"], endpoint.mappings)
+        else:
+            context["mapped_data"] = process_mappings(result["data"], endpoint.mappings)
 
         html = render_to_string(
             "netbox_custom_widget/widgets/custom_api_content.html",
-            {
-                "mapped_data": mapped_data,
-                "endpoint": endpoint,
-                "error": None,
-            },
+            context,
         )
         return HttpResponse(html)

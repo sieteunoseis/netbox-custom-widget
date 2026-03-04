@@ -221,3 +221,59 @@ def process_mappings(data, mappings):
         )
 
     return results
+
+
+def process_array_mappings(data, mappings):
+    """
+    Process an array of objects into table rows using mappings as column definitions.
+
+    When the API returns a list of objects and display_mode is "table", each mapping
+    defines a column. The "field" key is a path within each array item.
+
+    Args:
+        data: List of dicts from API response
+        mappings: List of mapping dicts (each defines a column)
+
+    Returns:
+        dict with "headers" (list of str) and "rows" (list of lists of cell dicts)
+    """
+    headers = []
+    for i, m in enumerate(mappings):
+        headers.append(m.get("label") or m.get("field", f"Column {i + 1}"))
+
+    rows = []
+    for item in data:
+        row = []
+        for mapping in mappings:
+            field_path = mapping.get("field", "")
+            value = extract_field(item, field_path)
+
+            # Color determination
+            color = mapping.get("color", "")
+            if color == "adaptive":
+                color_class = get_adaptive_color(value)
+            elif color == "threshold":
+                color_class = get_threshold_color(value, mapping.get("thresholds", []))
+            elif color:
+                color_class = get_static_color(color)
+            else:
+                color_class = ""
+
+            # Format value
+            fmt = mapping.get("format", "text")
+            if fmt == "number" and value is not None:
+                try:
+                    value = f"{int(value):,}"
+                except (ValueError, TypeError):
+                    pass
+
+            row.append(
+                {
+                    "value": value if value is not None else "N/A",
+                    "color_class": color_class,
+                    "suffix": mapping.get("suffix", ""),
+                }
+            )
+        rows.append(row)
+
+    return {"headers": headers, "rows": rows}
