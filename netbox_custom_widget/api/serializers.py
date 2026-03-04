@@ -12,7 +12,7 @@ class CustomAPIEndpointSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="plugins-api:netbox_custom_widget-api:customapiendpoint-detail"
     )
-    endpoint_url = serializers.CharField(source="url", read_only=True)
+    endpoint_url = serializers.CharField(source="url")
 
     class Meta:
         model = CustomAPIEndpoint
