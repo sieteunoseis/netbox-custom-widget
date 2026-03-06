@@ -10,7 +10,6 @@ from extras.dashboard.utils import register_widget
 from extras.dashboard.widgets import DashboardWidget, WidgetConfigForm
 
 from .models import BookmarkLink, CustomAPIEndpoint
-from .utils import fetch_api_data, process_array_mappings, process_mappings
 
 logger = logging.getLogger(__name__)
 
@@ -77,11 +76,11 @@ class CustomAPIWidget(DashboardWidget):
                 {"error": "No endpoint selected. Configure this widget to select a widget endpoint."},
             )
 
-        # Handle Bookmarks endpoint
+        # Handle Bookmarks endpoint (local DB query, no external API call)
         if endpoint_id == BOOKMARKS_ENDPOINT_ID:
             return self._render_bookmarks()
 
-        # Handle API endpoints
+        # Handle API endpoints — defer data fetching to HTMX for fast page loads
         try:
             endpoint = CustomAPIEndpoint.objects.get(pk=int(endpoint_id))
         except (CustomAPIEndpoint.DoesNotExist, ValueError):
@@ -90,25 +89,10 @@ class CustomAPIWidget(DashboardWidget):
                 {"error": f"Endpoint ID {endpoint_id} not found."},
             )
 
-        result = fetch_api_data(endpoint)
-
-        if result["error"]:
-            return render_to_string(
-                self.template_name,
-                {
-                    "error": result["error"],
-                    "endpoint": endpoint,
-                },
-            )
-
-        context = {"endpoint": endpoint, "error": None}
-
-        if endpoint.display_mode == "table" and isinstance(result["data"], list):
-            context["table_data"] = process_array_mappings(result["data"], endpoint.mappings)
-        else:
-            context["mapped_data"] = process_mappings(result["data"], endpoint.mappings)
-
-        return render_to_string(self.template_name, context)
+        return render_to_string(
+            self.template_name,
+            {"endpoint": endpoint, "deferred": True},
+        )
 
     def _render_bookmarks(self):
         """Render the bookmarks widget."""

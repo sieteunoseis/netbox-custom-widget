@@ -7,15 +7,28 @@
     </span>
   </div>
 {% elif endpoint %}
-  {% if endpoint.refresh_interval > 0 %}
+  {% if deferred %}
+  {# Initial page load: fetch data asynchronously via HTMX #}
   <div hx-get="{% url 'plugins:netbox_custom_widget:widget_refresh' endpoint.pk %}"
-       hx-trigger="every {{ endpoint.refresh_interval }}s"
+       hx-trigger="load{% if endpoint.refresh_interval > 0 %}, every {{ endpoint.refresh_interval }}s{% endif %}"
        hx-swap="innerHTML">
-  {% else %}
-  <div>
-  {% endif %}
-    {% include "netbox_custom_widget/widgets/custom_api_content.html" %}
+    <div class="text-center py-4">
+      <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
+      <div class="text-muted small mt-1">{% trans "Loading..." %}</div>
+    </div>
   </div>
+  {% else %}
+    {# Subsequent renders (detail page preview) #}
+    {% if endpoint.refresh_interval > 0 %}
+    <div hx-get="{% url 'plugins:netbox_custom_widget:widget_refresh' endpoint.pk %}"
+         hx-trigger="every {{ endpoint.refresh_interval }}s"
+         hx-swap="innerHTML">
+    {% else %}
+    <div>
+    {% endif %}
+      {% include "netbox_custom_widget/widgets/custom_api_content.html" %}
+    </div>
+  {% endif %}
 {% else %}
   <p class="text-center text-muted py-2">
     <i class="mdi mdi-information-outline"></i>
