@@ -44,9 +44,7 @@ class CustomAPIEndpointSerializer(NetBoxModelSerializer):
 class BookmarkLinkSerializer(NetBoxModelSerializer):
     """Serializer for BookmarkLink."""
 
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:netbox_custom_widget-api:bookmarklink-detail"
-    )
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_custom_widget-api:bookmarklink-detail")
     bookmark_url = serializers.CharField(source="url")
 
     class Meta:

@@ -43,5 +43,8 @@ class BookmarkLinkFilterSet(NetBoxModelFilterSet):
         from django.db.models import Q
 
         return queryset.filter(
-            Q(name__icontains=value) | Q(url__icontains=value) | Q(description__icontains=value) | Q(category__icontains=value)
+            Q(name__icontains=value)
+            | Q(url__icontains=value)
+            | Q(description__icontains=value)
+            | Q(category__icontains=value)
         )
