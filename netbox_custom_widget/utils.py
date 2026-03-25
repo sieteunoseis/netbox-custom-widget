@@ -1,8 +1,11 @@
 """Utility functions for NetBox Custom Widget plugin."""
 
+import hashlib
+import json
 import logging
 
 import requests
+from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 
@@ -120,9 +123,19 @@ def get_static_color(color_name):
     return color_map.get(color_name, "")
 
 
+def _make_cache_key(endpoint):
+    """Build a stable cache key from endpoint config."""
+    raw = f"{endpoint.pk}:{endpoint.url}:{endpoint.http_method}:{endpoint.body}"
+    digest = hashlib.md5(raw.encode()).hexdigest()
+    return f"custom_widget:api:{digest}"
+
+
 def fetch_api_data(endpoint):
     """
     Make an HTTP request to the configured API endpoint.
+
+    Results are cached in Redis for the endpoint's refresh_interval so that
+    multiple browser tabs / users share a single upstream call per cycle.
 
     Args:
         endpoint: CustomAPIEndpoint model instance
@@ -130,6 +143,13 @@ def fetch_api_data(endpoint):
     Returns:
         dict with keys: data (parsed JSON), error (str or None)
     """
+    cache_ttl = endpoint.refresh_interval or 0
+    if cache_ttl > 0:
+        cache_key = _make_cache_key(endpoint)
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return cached
+
     try:
         kwargs = {
             "headers": endpoint.headers or {},
@@ -149,19 +169,27 @@ def fetch_api_data(endpoint):
         )
         response.raise_for_status()
 
-        return {"data": response.json(), "error": None}
+        result = {"data": response.json(), "error": None}
 
     except requests.exceptions.Timeout:
-        return {"data": None, "error": f"Request timed out ({endpoint.timeout}s)"}
+        result = {"data": None, "error": f"Request timed out ({endpoint.timeout}s)"}
     except requests.exceptions.ConnectionError:
-        return {"data": None, "error": "Connection failed"}
+        result = {"data": None, "error": "Connection failed"}
     except requests.exceptions.HTTPError as e:
-        return {"data": None, "error": f"HTTP {e.response.status_code}"}
+        result = {"data": None, "error": f"HTTP {e.response.status_code}"}
     except ValueError:
-        return {"data": None, "error": "Invalid JSON response"}
+        result = {"data": None, "error": "Invalid JSON response"}
     except Exception as e:
         logger.warning(f"API call failed for {endpoint.name}: {e}")
-        return {"data": None, "error": str(e)}
+        result = {"data": None, "error": str(e)}
+
+    # Cache successful responses for refresh_interval seconds.
+    # Errors are cached for a shorter period to allow quick recovery.
+    if cache_ttl > 0:
+        ttl = cache_ttl if result["error"] is None else min(cache_ttl, 5)
+        cache.set(cache_key, result, ttl)
+
+    return result
 
 
 def format_duration(value):
