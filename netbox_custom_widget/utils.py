@@ -1,7 +1,6 @@
 """Utility functions for NetBox Custom Widget plugin."""
 
 import hashlib
-import json
 import logging
 
 import requests
