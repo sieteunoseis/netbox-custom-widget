@@ -51,6 +51,14 @@ PLUGINS_CONFIG = {
 }
 ```
 
+### Display Options
+
+Optional `PLUGINS_CONFIG["netbox_custom_widget"]` keys that control where the plugin appears in the UI:
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `top_level_menu` | `True` | `True` = own top-level sidebar menu. `False` = items listed under the shared **Plugins** menu, to shorten the sidebar. |
+
 ## Display Modes
 
 | Mode | Description | Best For |

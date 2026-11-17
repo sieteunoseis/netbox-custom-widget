@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.8.0] - 2026-11-17
+
+### Added
+- `top_level_menu` setting (default `True`); set `False` to list this plugin's menu items under the shared "Plugins" menu instead of its own top-level sidebar menu
+
 ## [0.2.0] - 2026-02-27
 
 ### Added
